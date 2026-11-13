@@ -1,0 +1,6 @@
+node_modules
+dist
+.DS_Store
+# Originalfotos (groß). Quellen stehen in src/config/images.json und public/images/SOURCES.md
+assets-src/
+screenshots/

@@ -1,0 +1,69 @@
+/*
+  Design-Tokens. Grün in zwei Stufen: Waldgrün für Überschriften, dunkle Flächen
+  und den Footer, ein lebendigeres Blattgrün für Buttons und Akzente. Flächen sind
+  weiß; Himmel, Vegetation und warme Töne bringen die Fotos mit. Kontraste siehe README.
+*/
+:root {
+  color-scheme: light;
+
+  /* Grundfarben */
+  --paper: #ffffff;
+  --forest: #173e2b;
+  --leaf: #2b7a4b;
+  --mist: #eaf0e8;
+  --ink: #202c25;
+  --line: #d7e1d7;
+
+  /* Abgeleitet */
+  --ink-2: #4a5b50;          /* Sekundärtext: 7.2:1 auf Weiß */
+  --leaf-text: #256a42;      /* Blattgrün für kleinen Text: 6.2:1 auf Weiß */
+  --leaf-deep: #23643e;      /* Hover des Primärbuttons */
+  --leaf-pressed: #1b5033;   /* Gedrückter Primärbutton */
+  --forest-deep: #112e20;
+  --forest-pressed: #0b2217;
+  --on-forest: #ffffff;      /* Text auf Waldgrün: 12.2:1 */
+  --on-forest-2: #c9dbce;    /* Sekundärtext auf Waldgrün: 8.2:1 */
+  --forest-line: rgba(255, 255, 255, 0.16);
+  --line-strong: #7e927f;    /* Formularrahmen: 3.3:1 auf Weiß */
+  --surface: #ffffff;
+  --mist-deep: #dde6da;      /* Hover/gedrückt auf Nebelgrün */
+  --error: #9e3a2c;          /* 6.7:1 auf Weiß */
+  --error-bg: #f8eeec;
+  --field-bg: #ffffff;
+  /* Abdunkelung über Fotos (Hero, Abschluss), als RGB für rgba() */
+  --scrim: 12, 34, 23;
+
+  /* Schrift */
+  --font-display: 'Manrope Variable', 'Manrope Fallback', system-ui, sans-serif;
+  --font-body: 'Source Sans 3 Variable', 'Source Sans 3 Fallback', system-ui, sans-serif;
+  --text-body: 1.125rem;
+  --lh-body: 1.6;
+  --measure: 60ch;
+
+  /* Layout */
+  --container: 1200px;
+  --gutter: 24px;
+  --section: clamp(3.5rem, 2rem + 3.5vw, 5.5rem);
+  --header-h: 72px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+
+  /* Bewegung: Bedienelemente, Panelwechsel, Abschnittseinblendung */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 150ms;
+  --t-panel: 250ms;
+  --t-section: 500ms;
+}
+
+@media (min-width: 760px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+@media (min-width: 1100px) {
+  :root {
+    --gutter: 48px;
+    --header-h: 80px;
+  }
+}

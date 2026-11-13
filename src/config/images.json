@@ -1,0 +1,412 @@
+{
+  "_hinweis": "Quelle für scripts/optimize-images.mjs und src/lib/images.ts. focus = [x, y] in 0..1 bestimmt, welcher Bildausschnitt beim Zuschnitt erhalten bleibt; zoom < 1 wählt einen engeren Ausschnitt; formats (Standard avif, webp, jpg) nur abweichend angeben. Originale liegen in assets-src/. Mehrere Einträge dürfen dasselbe Original mit unterschiedlichem Zuschnitt verwenden. credit erscheint im Impressum unter Bildnachweise; Stockfotos zeigen keine Projekte oder Mitarbeitenden von GLE.",
+  "images": {
+    "hero": {
+      "source": "haeuser.jpg",
+      "aspect": [
+        16,
+        9
+      ],
+      "widths": [
+        1200,
+        1600,
+        2000,
+        2400
+      ],
+      "focus": [
+        0.5,
+        1
+      ],
+      "alt": "Reihe moderner Giebelhäuser, deren Dächer vollständig mit Photovoltaikmodulen belegt sind, vor tiefblauem Himmel",
+      "credit": {
+        "title": "Contemporary homes featuring solar panels under a bright blue sky",
+        "author": "Budget Bizar",
+        "authorUrl": "https://www.pexels.com/@budget-bizar-92378004/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/solar-panels-on-buildings-roofs-16427010/"
+      }
+    },
+    "hero-hoch": {
+      "source": "haeuser.jpg",
+      "aspect": [
+        4,
+        5
+      ],
+      "widths": [
+        540,
+        720,
+        1080
+      ],
+      "focus": [
+        1,
+        0.5
+      ],
+      "alt": "Reihe moderner Giebelhäuser, deren Dächer vollständig mit Photovoltaikmodulen belegt sind, vor tiefblauem Himmel",
+      "credit": {
+        "title": "Contemporary homes featuring solar panels under a bright blue sky",
+        "author": "Budget Bizar",
+        "authorUrl": "https://www.pexels.com/@budget-bizar-92378004/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/solar-panels-on-buildings-roofs-16427010/"
+      }
+    },
+    "pv": {
+      "source": "pv-dach.jpg",
+      "aspect": [
+        4,
+        3
+      ],
+      "widths": [
+        480,
+        720,
+        960,
+        1200
+      ],
+      "focus": [
+        0.5,
+        0.5
+      ],
+      "alt": "Photovoltaikanlage auf dem Ziegeldach eines Wohnhauses, umgeben von Hecken und Bäumen",
+      "credit": {
+        "title": "A building with solar panels",
+        "author": "Watt A Lot",
+        "authorUrl": "https://unsplash.com/@wattalot",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/a-building-with-solar-panels-4Wl2YkDqHjU"
+      }
+    },
+    "pflege": {
+      "source": "reinigung.jpg",
+      "aspect": [
+        4,
+        3
+      ],
+      "widths": [
+        480,
+        720,
+        960,
+        1200
+      ],
+      "focus": [
+        0.65,
+        0.5
+      ],
+      "alt": "Reinigung nasser Solarmodule mit einer rotierenden Bürste an einer langen Teleskopstange",
+      "credit": {
+        "title": "Cleaning solar panels with a long handled brush",
+        "author": "Florida Solar Fix",
+        "authorUrl": "https://unsplash.com/@floridasolarfix",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/cleaning-solar-panels-with-a-long-handled-brush-XZP59dwklV4"
+      }
+    },
+    "technik": {
+      "source": "heizung.jpg",
+      "aspect": [
+        4,
+        3
+      ],
+      "widths": [
+        480,
+        720,
+        960,
+        1200
+      ],
+      "focus": [
+        0.45,
+        0.5
+      ],
+      "alt": "Techniker in Warnjacke arbeitet an einem geöffneten Heizkreisverteiler mit roten und blauen Leitungen",
+      "credit": {
+        "title": "Techniker am Heizkreisverteiler (Unsplash-Foto kB67fMuSiIs)",
+        "author": "Marc Zeman",
+        "authorUrl": "https://unsplash.com/@der_zeman",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/a-man-in-a-yellow-jacket-working-on-a-computer-kB67fMuSiIs"
+      }
+    },
+    "haus-panorama": {
+      "source": "haus.jpg",
+      "aspect": [
+        21,
+        9
+      ],
+      "widths": [
+        960,
+        1440,
+        1920,
+        2400
+      ],
+      "focus": [
+        0.5,
+        0.45
+      ],
+      "alt": "Modernes Wohnhaus mit einer in die Dachfläche integrierten Photovoltaikanlage, umgeben von Hecken und Bäumen",
+      "credit": {
+        "title": "Zonnepanelen geïntegreerd in dakvlak, Rijswijk",
+        "author": "Nanda Sluijsmans",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Zonnepanelen_ge%C3%AFntegreerd_in_dakvlak,_Rijswijk_(50100463951).jpg"
+      }
+    },
+    "montage": {
+      "source": "montage-ppe.jpg",
+      "aspect": [
+        4,
+        3
+      ],
+      "widths": [
+        640,
+        960,
+        1280
+      ],
+      "focus": [
+        0.7,
+        0.5
+      ],
+      "alt": "Monteur mit Schutzhelm, Warnweste und Handschuhen verschraubt ein Photovoltaikmodul auf einem großen Dach",
+      "credit": {
+        "title": "A solar technician wearing PPE installs photovoltaic panels for sustainable energy on a sunny day.",
+        "author": "Gustavo Fring",
+        "authorUrl": "https://www.pexels.com/@gustavo-fring/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/solar-technician-installing-solar-panel-4254165/"
+      }
+    },
+    "montage-breit": {
+      "source": "dach-nl.jpg",
+      "aspect": [
+        21,
+        9
+      ],
+      "widths": [
+        960,
+        1440,
+        1920
+      ],
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "alt": "Monteur installiert Photovoltaikmodule auf dem Ziegeldach eines Reihenhauses mit großen Fenstern",
+      "credit": {
+        "title": "Technician working on installing solar panels on a residential rooftop during the day.",
+        "author": "Stefan de Vries",
+        "authorUrl": "https://www.pexels.com/@sdvmovies/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/technician-installing-solar-panels-on-rooftop-29206488/"
+      }
+    },
+    "detail": {
+      "source": "detail.jpg",
+      "aspect": [
+        1,
+        1
+      ],
+      "widths": [
+        400,
+        600,
+        800
+      ],
+      "focus": [
+        0.6,
+        0.5
+      ],
+      "alt": "Hand im Arbeitshandschuh schraubt eine Montageschiene für Solarmodule auf Dachziegeln fest",
+      "credit": {
+        "title": "Montage einer Solarschiene auf Dachziegeln (Unsplash-Foto hrIpsXkrAO0)",
+        "author": "Jimmy Nilsson Masth",
+        "authorUrl": "https://unsplash.com/@jimmynilssonmasth",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/a-persons-hand-on-a-bicycle-tire-hrIpsXkrAO0"
+      }
+    },
+    "wind": {
+      "source": "training.jpg",
+      "aspect": [
+        16,
+        10
+      ],
+      "widths": [
+        640,
+        960,
+        1280,
+        1600
+      ],
+      "focus": [
+        0.5,
+        0.3
+      ],
+      "alt": "Windenergieanlagen hinter einer Hecke am Rand eines Ackers, darüber Quellwolken",
+      "credit": {
+        "title": "Schöppingen, Schöppinger Berg, 2015",
+        "author": "Dietmar Rabich",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sch%C3%B6ppingen,_Sch%C3%B6ppinger_Berg_--_2015_--_8513.jpg"
+      }
+    },
+    "wind-breit": {
+      "source": "training.jpg",
+      "aspect": [
+        21,
+        9
+      ],
+      "widths": [
+        960,
+        1440,
+        1920
+      ],
+      "focus": [
+        0.5,
+        0.25
+      ],
+      "alt": "Windenergieanlagen hinter einer Hecke am Rand eines Ackers, darüber Quellwolken",
+      "credit": {
+        "title": "Schöppingen, Schöppinger Berg, 2015",
+        "author": "Dietmar Rabich",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sch%C3%B6ppingen,_Sch%C3%B6ppinger_Berg_--_2015_--_8513.jpg"
+      }
+    },
+    "abschluss": {
+      "source": "gewerbedach.jpg",
+      "aspect": [
+        21,
+        9
+      ],
+      "widths": [
+        960,
+        1440,
+        1920
+      ],
+      "focus": [
+        1,
+        0.45
+      ],
+      "alt": "Techniker mit Helm und Unterlagen geht über ein großes Dach mit Photovoltaikmodulen",
+      "credit": {
+        "title": "A solar technician inspects solar panels on a rooftop under a clear blue sky",
+        "author": "Hoan Ngọc",
+        "authorUrl": "https://www.pexels.com/@hoan-ng-c-510735/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/solar-technician-installing-solar-panels-6961112/"
+      },
+      "zoom": 0.6
+    },
+    "leistungen": {
+      "source": "ziegelbau.jpg",
+      "aspect": [
+        21,
+        9
+      ],
+      "widths": [
+        960,
+        1440,
+        1920
+      ],
+      "focus": [
+        0.5,
+        0.3
+      ],
+      "alt": "Großes Ziegelgebäude, dessen steile Dachfläche vollständig mit Photovoltaikmodulen belegt ist, zwischen alten Bäumen",
+      "credit": {
+        "title": "a building with a glass front",
+        "author": "Watt A Lot",
+        "authorUrl": "https://unsplash.com/@wattalot",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/a-building-with-a-glass-front-8GS8bmor8_A"
+      }
+    },
+    "og": {
+      "source": "haeuser.jpg",
+      "aspect": [
+        1200,
+        630
+      ],
+      "widths": [
+        1200
+      ],
+      "focus": [
+        0.5,
+        1
+      ],
+      "formats": [
+        "jpg"
+      ],
+      "alt": "",
+      "credit": {
+        "title": "Contemporary homes featuring solar panels under a bright blue sky",
+        "author": "Budget Bizar",
+        "authorUrl": "https://www.pexels.com/@budget-bizar-92378004/",
+        "license": "Pexels-Lizenz",
+        "licenseUrl": "https://www.pexels.com/license/",
+        "sourceUrl": "https://www.pexels.com/photo/solar-panels-on-buildings-roofs-16427010/"
+      }
+    },
+    "pflege-breit": {
+      "source": "reinigung.jpg",
+      "aspect": [
+        5,
+        2
+      ],
+      "widths": [
+        720,
+        1200,
+        1600,
+        2400
+      ],
+      "focus": [
+        0.65,
+        0.5
+      ],
+      "alt": "Reinigung nasser Solarmodule mit einer rotierenden Bürste an einer langen Teleskopstange",
+      "credit": {
+        "title": "Cleaning solar panels with a long handled brush",
+        "author": "Florida Solar Fix",
+        "authorUrl": "https://unsplash.com/@floridasolarfix",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/cleaning-solar-panels-with-a-long-handled-brush-XZP59dwklV4"
+      }
+    },
+    "technik-breit": {
+      "source": "heizung.jpg",
+      "aspect": [
+        5,
+        2
+      ],
+      "widths": [
+        720,
+        1200,
+        1600,
+        2400
+      ],
+      "focus": [
+        0.45,
+        0.5
+      ],
+      "alt": "Techniker in Warnjacke arbeitet an einem geöffneten Heizkreisverteiler mit roten und blauen Leitungen",
+      "credit": {
+        "title": "Techniker am Heizkreisverteiler (Unsplash-Foto kB67fMuSiIs)",
+        "author": "Marc Zeman",
+        "authorUrl": "https://unsplash.com/@der_zeman",
+        "license": "Unsplash-Lizenz",
+        "licenseUrl": "https://unsplash.com/license",
+        "sourceUrl": "https://unsplash.com/photos/a-man-in-a-yellow-jacket-working-on-a-computer-kB67fMuSiIs"
+      }
+    }
+  }
+}

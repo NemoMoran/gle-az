@@ -1,0 +1,1271 @@
+/* ============================================================
+   Startseite
+   ============================================================ */
+
+/* Hero: ein Foto über die volle Breite, der Text liegt links auf einem
+   abgedunkelten Bereich. Mobil bestimmt der Inhalt die Höhe; das Foto
+   dahinter hat einen eigenen Hochformat-Zuschnitt. */
+.hero {
+  position: relative;
+  display: grid;
+  align-items: end;
+  min-height: 560px;
+  padding: 7.5rem 0 2.5rem;
+  overflow: hidden;
+  background: var(--forest);
+  color: #fff;
+}
+
+.hero__media,
+.hero__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero__media img {
+  object-fit: cover;
+  object-position: var(--hero-focus-narrow, 50% 35%);
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(var(--scrim), 0.88) 0%,
+    rgba(var(--scrim), 0.74) 42%,
+    rgba(var(--scrim), 0.28) 68%,
+    rgba(var(--scrim), 0) 84%
+  );
+}
+
+.hero__content {
+  position: relative;
+}
+
+.hero h1 {
+  max-width: 16ch;
+  color: #fff;
+}
+
+.hero__lead {
+  margin-top: 1.25rem;
+  max-width: 30em;
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.94);
+  text-wrap: pretty;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2rem;
+}
+
+.hero :focus-visible {
+  outline-color: #fff;
+}
+
+@media (max-width: 479px) {
+  .hero__actions .btn {
+    width: 100%;
+  }
+}
+
+@media (min-width: 700px) {
+  .hero {
+    align-items: center;
+    min-height: clamp(560px, 72vh, 680px);
+    padding: 5rem 0;
+  }
+
+  .hero__media img {
+    object-position: var(--hero-focus, 50% 50%);
+  }
+
+  .hero__scrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(var(--scrim), 0.88) 0%,
+        rgba(var(--scrim), 0.8) 32%,
+        rgba(var(--scrim), 0.62) 50%,
+        rgba(var(--scrim), 0.24) 66%,
+        rgba(var(--scrim), 0) 80%
+      ),
+      linear-gradient(to top, rgba(var(--scrim), 0.18) 0%, rgba(var(--scrim), 0) 35%);
+  }
+}
+
+/* Schmale Querformate: Der Text reicht weiter nach rechts, die Abdunkelung auch. */
+@media (min-width: 700px) and (max-width: 899px) {
+  .hero__scrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(var(--scrim), 0.88) 0%,
+        rgba(var(--scrim), 0.8) 50%,
+        rgba(var(--scrim), 0.66) 72%,
+        rgba(var(--scrim), 0.24) 88%,
+        rgba(var(--scrim), 0) 100%
+      ),
+      linear-gradient(to top, rgba(var(--scrim), 0.18) 0%, rgba(var(--scrim), 0) 35%);
+  }
+}
+
+/* Einstieg: Überschrift, Satz und Aktionen erscheinen nacheinander. Das Foto wird nie verzögert. */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js .hero__seq {
+    animation: hero-in 0.55s var(--ease-out) both;
+    animation-delay: calc(var(--seq, 0) * 70ms + 80ms);
+  }
+}
+
+/* Drei Bildkarten für die Leistungsbereiche */
+.cards__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  margin-bottom: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
+}
+
+.cards__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2.25rem;
+}
+
+@media (min-width: 720px) {
+  .cards__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.card__media {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--mist);
+}
+
+@media (min-width: 720px) {
+  .card__media {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.card__media picture,
+.card__media img {
+  width: 100%;
+  height: 100%;
+}
+
+.card__media img {
+  object-fit: cover;
+}
+
+.card__title {
+  font-size: 1.5rem;
+}
+
+.card__link {
+  color: var(--forest);
+  text-decoration: none;
+}
+
+/* Die ganze Karte ist klickbar; der Link selbst bleibt die zugängliche Bezeichnung. */
+.card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-m);
+}
+
+.card__link:focus-visible {
+  outline: none;
+}
+
+.card:has(.card__link:focus-visible) {
+  outline: 2px solid var(--leaf);
+  outline-offset: 6px;
+  border-radius: var(--radius-m);
+}
+
+.card:hover .card__link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+  text-decoration-color: var(--leaf);
+}
+
+.card__text {
+  margin-top: 0.5rem;
+  max-width: 36ch;
+  color: var(--ink-2);
+}
+
+.card__more {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.875rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--leaf-text);
+}
+
+.card__more svg {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.card:hover .card__more svg {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card__media img {
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .card:hover .card__media img {
+    transform: scale(1.03);
+  }
+
+  html.js .card[data-reveal] {
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+}
+
+/* Breites Bildmotiv, darunter bündig eine zweispaltige Textzeile */
+.feature {
+  padding-bottom: var(--section);
+}
+
+.feature__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--mist);
+}
+
+@media (min-width: 700px) {
+  .feature__media {
+    aspect-ratio: 21 / 9;
+    max-height: 680px;
+  }
+}
+
+.feature__media picture,
+.feature__media img {
+  width: 100%;
+  height: 100%;
+}
+
+.feature__media img {
+  object-fit: cover;
+}
+
+.feature__strip {
+  display: grid;
+  gap: 1.25rem 3rem;
+  padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+}
+
+@media (min-width: 760px) {
+  .feature__strip {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+}
+
+.feature__strip h2 {
+  max-width: 12ch;
+}
+
+.feature__copy p {
+  max-width: 44ch;
+  font-size: 1.1875rem;
+  color: var(--ink-2);
+}
+
+.feature__copy .btn {
+  margin-top: 1.5rem;
+}
+
+/* Zwei Fotos, versetzt, daneben der kompakte Ablauf */
+.work__grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .work__grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+}
+
+.work__photos {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding-bottom: 3rem;
+}
+
+.work__photo {
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--mist);
+}
+
+.work__photo picture,
+.work__photo img {
+  width: 100%;
+  height: 100%;
+}
+
+.work__photo img {
+  object-fit: cover;
+}
+
+.work__photo--large {
+  grid-column: 3 / 13;
+  grid-row: 1;
+  aspect-ratio: 4 / 3;
+}
+
+.work__photo--small {
+  grid-column: 1 / 6;
+  grid-row: 1;
+  align-self: end;
+  aspect-ratio: 1;
+  margin-bottom: -3rem;
+  box-shadow: 0 0 0 8px var(--paper);
+}
+
+.work__copy h2 {
+  max-width: 14ch;
+}
+
+.work__copy p {
+  margin-top: 1.25rem;
+  max-width: 40ch;
+  color: var(--ink-2);
+}
+
+.labels {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--forest);
+}
+
+.labels li {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.labels li + li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--leaf);
+}
+
+.work__copy .arrow-link {
+  margin-top: 1.75rem;
+}
+
+@media (max-width: 479px) {
+  .labels {
+    gap: 0.5rem 0.75rem;
+    font-size: 1.0625rem;
+  }
+
+  .labels li {
+    gap: 0.75rem;
+  }
+}
+
+/* Schulungen: Text links, Foto rechts bis zum Rand */
+.teaser {
+  display: grid;
+  padding-bottom: var(--section);
+}
+
+.teaser__media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--mist);
+}
+
+.teaser__media picture,
+.teaser__media img {
+  width: 100%;
+  height: 100%;
+}
+
+.teaser__media img {
+  object-fit: cover;
+}
+
+.teaser__copy {
+  padding: 2.5rem var(--gutter) 0;
+}
+
+.teaser__copy h2 {
+  max-width: 14ch;
+}
+
+.teaser__copy p {
+  margin-top: 1.25rem;
+  max-width: 40ch;
+  color: var(--ink-2);
+}
+
+.teaser__copy .btn {
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 900px) {
+  .teaser {
+    grid-template-columns:
+      minmax(var(--gutter), 1fr) minmax(0, calc(var(--container) / 2))
+      minmax(0, calc(var(--container) / 2)) minmax(var(--gutter), 1fr);
+    align-items: center;
+    padding-bottom: 0;
+  }
+
+  .teaser__copy {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 3rem clamp(2.5rem, 5vw, 5rem) 3rem 0;
+  }
+
+  .teaser__media {
+    grid-column: 3 / 5;
+    grid-row: 1;
+    align-self: stretch;
+    aspect-ratio: auto;
+    min-height: 440px;
+    max-height: 600px;
+  }
+}
+
+/* Abschluss (auf der Startseite mit Foto unter waldgrüner Abdunkelung) */
+.cta {
+  position: relative;
+  padding-block: clamp(4rem, 3rem + 5vw, 7rem);
+  background: var(--forest);
+  color: var(--on-forest-2);
+}
+
+.cta :focus-visible {
+  outline-color: var(--paper);
+}
+
+.cta__grid {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .cta__grid {
+    grid-template-columns: 1fr auto;
+    gap: 4rem;
+  }
+}
+
+.cta h2 {
+  max-width: 18ch;
+  font-size: clamp(2rem, 1.4rem + 2.2vw, 3rem);
+  color: var(--on-forest);
+}
+
+.cta p {
+  margin-top: 1rem;
+  max-width: 44ch;
+  font-size: 1.1875rem;
+}
+
+.cta--slim {
+  padding-block: clamp(3rem, 2.5rem + 3vw, 4.5rem);
+}
+
+.cta--slim h2 {
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem);
+}
+
+.cta--photo {
+  overflow: hidden;
+  padding-block: clamp(5rem, 3.5rem + 7vw, 9.5rem);
+}
+
+.cta__media,
+.cta__media picture,
+.cta__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cta__media {
+  z-index: 0;
+}
+
+.cta__media img {
+  object-fit: cover;
+}
+
+/* Abdunkelung nur hinter dem Text, wie im Hero; rechts bleibt das Foto ein Foto.
+   Schmal liegt der Text über die volle Breite, dann dunkelt der untere Teil ab. */
+.cta--photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(var(--scrim), 0.9) 0%,
+    rgba(var(--scrim), 0.82) 55%,
+    rgba(var(--scrim), 0.5) 100%
+  );
+}
+
+@media (min-width: 900px) {
+  .cta--photo::after {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(var(--scrim), 0.9) 0%,
+        rgba(var(--scrim), 0.84) 28%,
+        rgba(var(--scrim), 0.6) 48%,
+        rgba(var(--scrim), 0.22) 66%,
+        rgba(var(--scrim), 0) 82%
+      ),
+      linear-gradient(to top, rgba(var(--scrim), 0.3) 0%, rgba(var(--scrim), 0) 40%);
+  }
+}
+
+.cta--photo .cta__grid {
+  z-index: 2;
+}
+
+.cta--photo h2 {
+  max-width: 16ch;
+  font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+}
+
+.cta + .site-footer {
+  border-top: 1px solid var(--forest-line);
+}
+
+/* ============================================================
+   Unterseiten
+   ============================================================ */
+.page-head {
+  padding-top: clamp(3rem, 2rem + 4vw, 5.5rem);
+  padding-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+}
+
+.page-head h1 {
+  max-width: 18ch;
+  font-size: clamp(2.25rem, 1.4rem + 2.8vw, 3.75rem);
+}
+
+.page-head .lead {
+  margin-top: 1.25rem;
+}
+
+.page-body {
+  padding-bottom: var(--section);
+}
+
+/* Bildband (Leistungen, Über uns, Schulungen) */
+.band {
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--mist-deep);
+}
+
+.band picture,
+.band img {
+  width: 100%;
+  height: 100%;
+}
+
+.band img {
+  object-fit: cover;
+}
+
+@media (max-width: 599px) {
+  .band {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+.band--page {
+  margin-bottom: clamp(1.5rem, 1rem + 2vw, 3rem);
+}
+
+/* Leistungen: je Bereich ein breites Foto, darunter Titel und Text in zwei Spalten,
+   die von Bereich zu Bereich die Seite wechseln. */
+.service {
+  padding-block: clamp(2.5rem, 2rem + 2.5vw, 4.5rem);
+}
+
+.service__band {
+  aspect-ratio: 5 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--mist-deep);
+}
+
+@media (max-width: 599px) {
+  .service__band {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+.service__band picture,
+.service__band img {
+  width: 100%;
+  height: 100%;
+}
+
+.service__band img {
+  object-fit: cover;
+}
+
+.service__grid {
+  display: grid;
+  gap: 1.5rem 4rem;
+  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+
+@media (min-width: 900px) {
+  .service__grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+
+  .service--flip .service__intro {
+    order: 2;
+  }
+
+  .service--flip .service__body {
+    order: 1;
+  }
+}
+
+.service__intro h2 {
+  font-size: clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);
+}
+
+.service__claim {
+  margin-top: 0.75rem;
+  max-width: 24ch;
+  font-size: 1.1875rem;
+  color: var(--ink-2);
+}
+
+.service__body {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.service__body h3 {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.service__body .prose p {
+  max-width: var(--measure);
+}
+
+.check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+@media (min-width: 640px) {
+  .check-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem 2rem;
+  }
+}
+
+.check-list li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 1.0625rem;
+}
+
+.check-list li::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 1px;
+  margin-top: 0.85em;
+  background: var(--leaf);
+}
+
+.service__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Schaubild "So wird aus Sonne Strom." (Leistungsseite, eigener Abschnitt auf Nebelgrün) */
+
+.flow__grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .flow__grid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: center;
+  }
+}
+
+.flow__sheet {
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+}
+
+.flow__canvas {
+  position: relative;
+}
+
+.flow__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.flow__edge {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.flow__arrow {
+  fill: var(--line-strong);
+}
+
+.flow__pulse {
+  fill: none;
+  stroke: var(--leaf);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 3 11;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flow__edge-label {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  fill: var(--ink-2);
+}
+
+.flow__node {
+  color: var(--forest);
+}
+
+.flow__node rect,
+.flow__node circle {
+  fill: var(--mist);
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  transition:
+    fill 0.2s,
+    stroke 0.2s;
+}
+
+.flow__node--context {
+  color: var(--leaf);
+}
+
+.flow__node--context rect,
+.flow__node--context circle {
+  fill: var(--surface);
+}
+
+.flow__node.is-hover rect {
+  fill: var(--mist-deep);
+  stroke: var(--forest);
+}
+
+.flow__node.is-selected {
+  color: var(--on-forest);
+}
+
+.flow__node.is-selected rect {
+  fill: var(--forest);
+  stroke: var(--forest);
+}
+
+.flow__node-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  fill: currentColor;
+}
+
+.flow__node--context .flow__node-label {
+  fill: var(--forest);
+}
+
+.flow__hits {
+  position: absolute;
+  inset: 0;
+}
+
+.flow__hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.flow__hit:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: 4px;
+}
+
+.flow__caption {
+  margin-top: 0.875rem;
+  max-width: 60ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.flow__info h3 {
+  font-size: 1.375rem;
+}
+
+.flow__info p {
+  margin-top: 0.75rem;
+  max-width: 40ch;
+  color: var(--ink-2);
+}
+
+@keyframes flow-dash {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -98;
+  }
+}
+
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow.is-live .flow__pulse {
+    animation: flow-dash 1.6s linear both;
+  }
+
+  .flow__info-inner {
+    animation: detail-in var(--t-panel) var(--ease-out) both;
+  }
+}
+
+/* Drei Schritte, durch eine Linie verbunden (Über uns) */
+.steps {
+  --marker: 44px;
+  display: grid;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  position: relative;
+  padding-left: calc(var(--marker) + 1.125rem);
+}
+
+.step__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: var(--marker);
+  height: var(--marker);
+  border: 1.5px solid var(--forest);
+  border-radius: 50%;
+  background: var(--mist);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--forest);
+}
+
+.step h3 {
+  padding-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.step p {
+  max-width: 34ch;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+}
+
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--marker) / 2 - 0.5px);
+  top: calc(var(--marker) + 6px);
+  width: 1px;
+  height: calc(100% - var(--marker) - 12px + 2rem);
+  background: var(--line-strong);
+  transform-origin: top;
+}
+
+@media (min-width: 760px) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+
+  .step {
+    padding-left: 0;
+    padding-top: calc(var(--marker) + 1.25rem);
+  }
+
+  .step h3 {
+    padding-top: 0;
+  }
+
+  .step:not(:last-child)::before {
+    left: calc(var(--marker) + 6px);
+    top: calc(var(--marker) / 2 - 0.5px);
+    width: calc(100% - var(--marker) - 12px + 3rem);
+    height: 1px;
+    transform-origin: left;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js .step:not(:last-child)::before {
+    transform: scaleY(0);
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  @media (min-width: 760px) {
+    html.js .step:not(:last-child)::before {
+      transform: scaleX(0);
+    }
+  }
+
+  html.js .steps.is-in .step:nth-child(1)::before {
+    transform: none;
+    transition-delay: 0.2s;
+  }
+
+  html.js .steps.is-in .step:nth-child(2)::before {
+    transform: none;
+    transition-delay: 0.6s;
+  }
+}
+
+/* Über uns */
+.about-page__approach {
+  display: grid;
+  gap: clamp(2rem, 1.5rem + 2vw, 3rem);
+}
+
+/* Die drei Fragen, mit denen jede Planung beginnt: groß gesetzt, ohne Kästen. */
+.questions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 760px) {
+  .questions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+}
+
+.questions li {
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--forest);
+}
+
+.questions h3 {
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.questions p {
+  margin-top: 0.75rem;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+}
+
+.about-page__steps {
+  margin-top: var(--section);
+}
+
+.about-page__more {
+  margin-top: var(--section);
+}
+
+/* Häufige Fragen (Begleitspalte der Kontaktseite) */
+.faq__list .disclosure {
+  border-bottom: 1px solid var(--line);
+}
+
+/* Kontakt: Das Formular ist die Hauptspalte, daneben Ablauf und häufige Fragen.
+   Die Begleitspalte folgt dem Formular beim Scrollen, damit neben dem langen
+   Formular keine leere Fläche entsteht. */
+.contact__grid {
+  display: grid;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .contact__grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(3rem, 6vw, 5rem);
+  }
+
+  .contact__aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+  }
+}
+
+.contact__aside h2 {
+  margin-bottom: 1.25rem;
+  font-size: 1.375rem;
+}
+
+.steps-list {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.steps-list li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.875rem;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+}
+
+.steps-list li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--forest);
+}
+
+.contact__details {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.contact__details p {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.contact__details svg {
+  flex: none;
+  color: var(--leaf);
+  transform: translateY(0.15em);
+}
+
+.contact__aside .faq {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+/* Schritt 1 des Formulars: Fragen mit Auswahl-Chips */
+.choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+/* Nicht gefloatet wie die Schritt-Legenden: Ein Float in voller Breite würde die
+   Chip-Zeile (einen eigenen Formatierungskontext) neben sich schieben. */
+.choice legend {
+  float: none;
+  width: auto;
+  padding: 0;
+  margin-bottom: 0.625rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--forest);
+}
+
+.choice__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.form .chip {
+  min-height: 44px;
+  padding: 0 0.875rem;
+  font-size: 0.9375rem;
+}
+
+.form__choice-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1.25rem;
+}
+
+.form__choice-result:empty {
+  display: none;
+}
+
+.form__summary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.35;
+  color: var(--forest);
+}
+
+.form__summary:empty {
+  display: none;
+}
+
+/* Rechtstexte */
+.legal .notice {
+  max-width: 70ch;
+  margin-bottom: 2.5rem;
+}
+
+.legal .prose h2 {
+  font-size: 1.5rem;
+}
+
+/* 404 */
+.not-found {
+  padding-block: clamp(4rem, 3rem + 6vw, 8rem);
+}
+
+.not-found .lead {
+  margin-top: 1.25rem;
+}
+
+.not-found .btn {
+  margin-top: 2rem;
+}

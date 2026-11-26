@@ -197,15 +197,25 @@ export function EnergyFlow({ embedded = false }: { embedded?: boolean }) {
   return (
     <section
       ref={sectionRef}
-      className={embedded ? 'flow-section flow-embed' : 'section section--mist flow-section'}
+      className={embedded ? 'flow-section flow-embed' : 'flow-section'}
       aria-labelledby="flow-title"
     >
-      <div className={embedded ? undefined : 'container'}>
-        <div className="section-head" data-reveal>
-          <Heading id="flow-title">So wird aus Sonne Strom.</Heading>
-          <p className="lead">
-            Vier Stationen, ein Prinzip. Wählen Sie Solarmodule, Wechselrichter oder Gebäude, um mehr zu erfahren.
-          </p>
+      <div className={embedded ? undefined : 'flow-section__frame on-night'}>
+       <div className={embedded ? undefined : 'container'}>
+        <div className="section-head section-head--split">
+          <div>
+            <p className="eyebrow" data-reveal>
+              Schaubild
+            </p>
+            <Heading id="flow-title" data-reveal>
+              So wird aus Sonne Strom.
+            </Heading>
+          </div>
+          <div className="section-head__aside" data-reveal>
+            <p className="lead">
+              Vier Stationen, ein Prinzip. Wählen Sie Solarmodule, Wechselrichter oder Gebäude, um mehr zu erfahren.
+            </p>
+          </div>
         </div>
 
         <div className="flow__grid" data-reveal>
@@ -274,6 +284,7 @@ export function EnergyFlow({ embedded = false }: { embedded?: boolean }) {
             </div>
           </div>
         </div>
+       </div>
       </div>
     </section>
   )

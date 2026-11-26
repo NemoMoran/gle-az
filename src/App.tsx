@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { ReferenzenPage } from './pages/ReferenzenPage'
 import { HomePage } from './pages/HomePage'
 import { LeistungenPage } from './pages/LeistungenPage'
 import { UeberUnsPage } from './pages/UeberUnsPage'
@@ -14,6 +15,7 @@ export function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
+        <Route path="referenzen" element={<ReferenzenPage />} />
         <Route path="leistungen" element={<LeistungenPage />} />
         <Route path="ueber-uns" element={<UeberUnsPage />} />
         <Route path="schulungen" element={<SchulungenPage />} />

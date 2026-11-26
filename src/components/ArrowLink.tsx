@@ -10,12 +10,13 @@ interface ArrowLinkProps {
   className?: string
 }
 
+/** Textlink mit Pfeil; die Unterstreichung zeichnet sich beim Hover von links nach. */
 export function ArrowLink({ to, children, tone = 'default', className }: ArrowLinkProps) {
   const classes = ['arrow-link', tone === 'light' && 'arrow-link--light', className].filter(Boolean).join(' ')
   return (
     <Link to={to} className={classes}>
-      {children}
-      <ArrowRight size={18} aria-hidden="true" />
+      <span className="arrow-link__label">{children}</span>
+      <ArrowRight size={18} weight="bold" aria-hidden="true" />
     </Link>
   )
 }

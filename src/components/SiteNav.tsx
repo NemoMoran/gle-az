@@ -9,7 +9,7 @@ function clipTo(layer: HTMLElement, link: HTMLElement, animate: boolean) {
   const right = layer.offsetWidth - left - link.offsetWidth
   const bottom = layer.offsetHeight - top - link.offsetHeight
   if (!animate) layer.style.transition = 'none'
-  layer.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px round var(--radius-s))`
+  layer.style.clipPath = `inset(${top}px ${right}px ${bottom}px ${left}px round var(--radius-pill))`
   if (!animate) {
     layer.getBoundingClientRect()
     layer.style.transition = ''

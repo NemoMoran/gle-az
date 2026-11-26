@@ -1,27 +1,37 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowDown, ArrowRight } from '@phosphor-icons/react'
+import { ArrowDown, ArrowUpRight } from '@phosphor-icons/react'
 
 interface ButtonLinkProps {
   to: string
   children: ReactNode
-  variant?: 'primary' | 'secondary' | 'inverse'
+  /** `accent` (sonnengrün) für dunkle Flächen und Fotos; `inverse` ist dessen früherer Name. */
+  variant?: 'primary' | 'secondary' | 'accent' | 'inverse'
   size?: 'default' | 'sm'
-  /** Pfeil rechts (Standard), nach unten für Sprünge innerhalb der Seite, oder keiner. */
+  /** Pfeil (Standard), nach unten für Sprünge innerhalb der Seite, oder keiner. */
   icon?: 'right' | 'down' | 'none'
   className?: string
 }
 
-/** Link in Button-Optik mit Pfeil, der sich beim Hover leicht in Linkrichtung bewegt. */
+/**
+ * Link in Button-Optik. Der Pfeil sitzt in einem eigenen Kreis; beim Hover verlässt
+ * er ihn in Pfeilrichtung, während ein zweiter nachrückt.
+ */
 export function ButtonLink({ to, children, variant = 'primary', size = 'default', icon = 'right', className }: ButtonLinkProps) {
-  const classes = ['btn', `btn--${variant}`, size === 'sm' && 'btn--sm', icon !== 'none' && `btn--icon btn--icon-${icon}`, className]
+  const tone = variant === 'inverse' ? 'accent' : variant
+  const classes = ['btn', `btn--${tone}`, size === 'sm' && 'btn--sm', icon !== 'none' && `btn--icon btn--icon-${icon}`, className]
     .filter(Boolean)
     .join(' ')
-  const Icon = icon === 'down' ? ArrowDown : ArrowRight
+  const Icon = icon === 'down' ? ArrowDown : ArrowUpRight
   return (
     <Link to={to} className={classes}>
-      {children}
-      {icon !== 'none' && <Icon size={18} aria-hidden="true" />}
+      <span className="btn__label">{children}</span>
+      {icon !== 'none' && (
+        <span className="btn__icon" aria-hidden="true">
+          <Icon size={16} weight="bold" />
+          <Icon size={16} weight="bold" />
+        </span>
+      )}
     </Link>
   )
 }

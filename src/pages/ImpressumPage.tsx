@@ -1,6 +1,6 @@
 import { Info } from '@phosphor-icons/react'
 import { usePageMeta } from '../lib/usePageMeta'
-import { PageHead } from '../components/PageHead'
+import { PageHero } from '../components/PageHero'
 import { Draft } from '../components/Draft'
 import { formattedAddress, site } from '../config/site'
 import manifest from '../config/images.json'
@@ -25,7 +25,7 @@ export function ImpressumPage() {
 
   return (
     <>
-      <PageHead title="Impressum" />
+      <PageHero eyebrow="Rechtliches" title="Impressum" size="compact" />
       <div className="container page-body legal">
         <div className="notice">
           <Info size={22} aria-hidden="true" />

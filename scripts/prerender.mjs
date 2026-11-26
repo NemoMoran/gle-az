@@ -14,7 +14,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const routes = ['/', '/leistungen', '/ueber-uns', '/schulungen', '/kontakt', '/impressum', '/datenschutz']
+const routes = ['/', '/leistungen', '/referenzen', '/ueber-uns', '/schulungen', '/kontakt', '/impressum', '/datenschutz']
 const dist = path.resolve('dist')
 const ssrDir = path.resolve('dist-ssr')
 

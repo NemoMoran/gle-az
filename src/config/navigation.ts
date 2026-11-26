@@ -6,6 +6,7 @@ export interface NavItem {
 /** Hauptnavigation im Header, Footer und mobilen Menü. */
 export const navigation: NavItem[] = [
   { to: '/leistungen', label: 'Leistungen' },
+  { to: '/referenzen', label: 'Referenzen' },
   { to: '/ueber-uns', label: 'Über uns' },
   { to: '/schulungen', label: 'Schulungen' },
   { to: '/kontakt', label: 'Kontakt' },

@@ -33,7 +33,10 @@ for (const [name, image] of Object.entries(manifest.images)) {
     for (const format of image.formats ?? defaultFormats) expected.add(`${name}-${width}.${format}`)
   }
 }
-for (const file of await readdir(outDir)) {
+// Nur Dateien dieser Pipeline; Unterordner wie portfolio/ (Projektfotos aus dem Portfolio) bleiben unberührt.
+for (const entry of await readdir(outDir, { withFileTypes: true })) {
+  if (!entry.isFile()) continue
+  const file = entry.name
   if (!expected.has(file)) {
     await unlink(path.join(outDir, file))
     console.log(`entfernt: ${file}`)

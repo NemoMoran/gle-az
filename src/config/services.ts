@@ -12,12 +12,10 @@ export interface ServiceGroup {
   /** URL-Anker auf der Leistungsseite und Wert im Feld "Ihr Interesse", z. B. /leistungen#photovoltaik */
   id: string
   title: string
-  /** Ein Satz für die Bildkarte der Startseite. */
+  /** Ein Satz für die Bildfläche der Startseite und als Kernaussage auf der Leistungsseite. */
   short: string
-  /** Foto der Bildkarte und des Abschnitts auf der Leistungsseite (Schlüssel aus src/config/images.json). */
+  /** Foto der Bildfläche der Startseite und des Abschnitts auf der Leistungsseite (Schlüssel aus src/config/images.json). */
   image: ImageName
-  /** Breites Foto (5:2) über dem Abschnitt auf der Leistungsseite. */
-  band: ImageName
   /** Absätze für die Leistungsseite. */
   description: string[]
   /** Liste "Was dazugehört" auf der Leistungsseite. */
@@ -31,8 +29,7 @@ export const serviceGroups: ServiceGroup[] = [
     id: 'photovoltaik',
     title: 'Photovoltaik',
     short: 'Planung und Installation für Wohnhaus und Gewerbe.',
-    image: 'pv',
-    band: 'leistungen',
+    image: 'pv-panel',
     description: [
       'Eine Photovoltaikanlage ist dann gut, wenn sie zum Gebäude passt. Deshalb beginnen wir mit Dachfläche, Ausrichtung, Verschattung und Ihrem Stromverbrauch, nicht mit einem Produkt.',
       'Daraus entsteht eine Auslegung, die wir Ihnen Schritt für Schritt erklären. Erst wenn Sie den Vorschlag nachvollziehen können, stimmen wir Installation und Inbetriebnahme ab.',
@@ -50,8 +47,7 @@ export const serviceGroups: ServiceGroup[] = [
     id: 'betrieb-und-pflege',
     title: 'Betrieb & Pflege',
     short: 'Monitoring, Wartung und Reinigung bestehender Anlagen.',
-    image: 'pflege',
-    band: 'pflege-breit',
+    image: 'pflege-panel',
     description: [
       'Nach der Inbetriebnahme beginnt der eigentliche Alltag Ihrer Anlage. Monitoring zeigt, ob die Erträge den Erwartungen entsprechen, und macht Auffälligkeiten früh sichtbar.',
       'Regelmäßige Wartung und eine fachgerechte Reinigung halten die Anlage in dem Zustand, für den sie geplant wurde. Beides stimmen wir auf Standort, Verschmutzung und Anlagengröße ab.',
@@ -67,8 +63,7 @@ export const serviceGroups: ServiceGroup[] = [
     id: 'gebaeudetechnik',
     title: 'Gebäudetechnik',
     short: 'Heizen, Kühlen und Lüften, abgestimmt auf Gebäude und Nutzung.',
-    image: 'technik',
-    band: 'technik-breit',
+    image: 'technik-panel',
     description: [
       'Heizen, Kühlen und Lüften bestimmen einen großen Teil des Energiebedarfs eines Gebäudes. Wir betrachten diese Systeme im Zusammenhang mit Ihrer Stromerzeugung und mit der tatsächlichen Nutzung der Räume.',
       'Das Ergebnis sind Lösungen, die einfach zu betreiben sind und sich sinnvoll mit einer Photovoltaikanlage verbinden lassen.',

@@ -1,6 +1,6 @@
 import { Info } from '@phosphor-icons/react'
 import { usePageMeta } from '../lib/usePageMeta'
-import { PageHead } from '../components/PageHead'
+import { PageHero } from '../components/PageHero'
 import { Draft } from '../components/Draft'
 import { formattedAddress, site } from '../config/site'
 
@@ -13,7 +13,7 @@ export function DatenschutzPage() {
 
   return (
     <>
-      <PageHead title={"Datenschutz\u00ADerklärung"} />
+      <PageHero eyebrow="Rechtliches" title={"Datenschutz\u00ADerklärung"} size="compact" />
       <div className="container page-body legal">
         <div className="notice">
           <Info size={22} aria-hidden="true" />

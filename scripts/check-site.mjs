@@ -3,9 +3,10 @@
  * Konsolenfehler, fehlgeschlagene Requests, horizontales Überlaufen, genau eine h1,
  * geladene Bilder (AVIF, feste Maße, Lazy Loading), axe-core-Barrierefreiheit,
  * mobiles Menü, Formularvalidierung, Tastaturbedienung, Anker-Navigation,
- * Textkontrast auf Fotos (Hero, Abschluss), die Bildkarten und Links der Startseite,
- * das Schaubild auf der Leistungsseite, das Vorhaben im Kontaktformular, den gemerkten
- * Entwurf, FAQ, Header-Schatten und reduzierte Bewegung.
+ * Textkontrast auf Fotos (Hero, Abschluss), die bewegten Bausteine der Startseite
+ * (Laufband, wechselnde Referenzkarte, Bildflächen, Kennzahlen, Ablauf, Referenzstrecke),
+ * die schwebende Kopfleiste, das Schaubild auf der Leistungsseite, das Vorhaben im
+ * Kontaktformular, den gemerkten Entwurf, FAQ und reduzierte Bewegung.
  * Screenshots landen im Ordner SHOT_DIR (Standard: ./screenshots).
  *
  * Voraussetzung: Google Chrome ist installiert (CHROME_PATH überschreibt den Pfad)
@@ -26,7 +27,7 @@ const base = (process.env.SITE_URL ?? 'http://127.0.0.1:5173').replace(/\/$/, ''
 const outDir = process.env.SHOT_DIR ?? 'screenshots'
 const executablePath =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-const routes = ['/', '/leistungen', '/ueber-uns', '/schulungen', '/kontakt', '/impressum', '/datenschutz', '/gibt-es-nicht']
+const routes = ['/', '/leistungen', '/referenzen', '/ueber-uns', '/schulungen', '/kontakt', '/impressum', '/datenschutz', '/gibt-es-nicht']
 const viewports = [
   { name: 'mobile', width: 390, height: 844, scale: 2 },
   { name: 'tablet', width: 768, height: 1024, scale: 2 },
@@ -117,24 +118,30 @@ for (const vp of viewports) {
       }
       window.scrollTo({ top: 0, behavior: 'instant' })
     })
-    await page.waitForFunction(() => [...document.images].every((i) => i.complete), null, { timeout: 8000 }).catch(() => {})
+    // Lazy-Loading festhalten, dann alles Sichtbare laden: Fotos in waagerechten Strecken und
+    // Laufbändern liegen seitlich außerhalb des Fensters. Bilder ohne Layout (der jeweils
+    // ausgeblendete Satz der Ablauf-Fotos) werden nie geladen und zählen nicht.
+    const lazyFlags = await page.evaluate(() => [...document.images].filter((i) => i.getClientRects().length > 0).map((i) => i.loading === 'lazy'))
+    await page.evaluate(() => [...document.images].filter((i) => i.getClientRects().length > 0).forEach((i) => (i.loading = 'eager')))
+    await page.waitForFunction(() => [...document.images].filter((i) => i.getClientRects().length > 0).every((i) => i.complete), null, { timeout: 12000 }).catch(() => {})
     await page.waitForTimeout(300)
 
     const m = await page.evaluate(() => ({
       title: document.title,
       h1: document.querySelectorAll('h1').length,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      images: [...document.images].map((i) => ({
+      images: [...document.images].filter((i) => i.getClientRects().length > 0).map((i) => ({
         src: i.currentSrc || i.src,
         ok: i.complete && i.naturalWidth > 0,
         sized: Boolean(i.getAttribute('width') && i.getAttribute('height')),
-        lazy: i.loading === 'lazy',
         alt: i.hasAttribute('alt'),
       })),
       landmarks: ['header', 'nav', 'main', 'footer'].filter((t) => !document.querySelector(t)),
       lang: document.documentElement.lang,
-      paragraphs: document.querySelectorAll('main p').length,
+      paragraphs: [...document.querySelectorAll('main p')].filter((p) => p.textContent.trim().length > 90).length,
     }))
+    m.images.forEach((image, index) => (image.lazy = lazyFlags[index]))
+
     const label = `${vp.name.padEnd(7)} ${route.padEnd(16)}`
     report(errors.length === 0, `${label} console errors: ${errors.join(' | ') || 'none'}`)
     report(failedRequests.length === 0, `${label} failed requests: ${failedRequests.join(', ') || 'none'}`)
@@ -143,14 +150,15 @@ for (const vp of viewports) {
     report(m.images.every((i) => i.ok), `${label} images loaded ${m.images.filter((i) => i.ok).length}/${m.images.length}${m.images.filter((i) => !i.ok).map((i) => ' MISSING ' + i.src).join('')}`)
     if (m.images.length > 0) {
       report(m.images.every((i) => i.sized && i.alt), `${label} every image has width/height and an alt attribute`)
-      report(m.images.every((i) => /\.avif(\?|$)/.test(i.src)), `${label} AVIF variant served to Chrome`)
-      report(m.images.filter((i) => i.lazy).length >= m.images.length - 1, `${label} below-the-fold images lazy-loaded (${m.images.filter((i) => !i.lazy).length} eager)`)
+      // Fotos der Bildpipeline kommen als AVIF; die Projektfotos aus dem Portfolio liegen als WebP vor.
+      report(m.images.every((i) => /\/images\/portfolio\/.+\.webp(\?|$)/.test(i.src) || /\.avif(\?|$)/.test(i.src)), `${label} AVIF variant served to Chrome (portfolio photos as WebP)`)
+      report(m.images.filter((i) => !i.lazy).length <= 2, `${label} below-the-fold images lazy-loaded (${m.images.filter((i) => !i.lazy).length} eager)`)
     }
     report(m.landmarks.length === 0 && m.lang === 'de', `${label} landmarks present, lang="${m.lang}"`)
     if (route === '/') {
-      const motifs = new Set(m.images.map((i) => i.src.replace(/.*\/images\//, '').replace(/-\d+\.\w+(\?.*)?$/, '')))
-      report(motifs.size >= 7 && motifs.size <= 9, `${label} ${motifs.size} distinct photographs on the homepage (7 to 9 expected)`)
-      report(m.paragraphs <= 8, `${label} ${m.paragraphs} paragraphs of visible prose (at most 8)`)
+      const motifs = new Set(m.images.map((i) => i.src.replace(/.*\/images\//, '').replace(/-\d+\.\w+(\?.*)?$/, '').replace(/^hero-hoch$/, 'hero')))
+      report(motifs.size >= 10, `${label} ${motifs.size} distinct photographs on the homepage (at least 10 expected)`)
+      report(m.paragraphs <= 9, `${label} ${m.paragraphs} paragraphs longer than a line or two on the homepage (at most 9)`)
     }
 
     if (vp.name !== 'tablet') {
@@ -213,7 +221,8 @@ for (const vp of viewports) {
   const page = await context.newPage()
   await page.goto(base + '/leistungen', { waitUntil: 'load' })
   const visible = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].every((el) => getComputedStyle(el).opacity === '1'))
-  report((await page.locator('h1').innerText()) === 'Leistungen' && (await page.locator('.service__band img').count()) === 3 && visible, 'services page readable without JavaScript, nothing hidden')
+  const unclipped = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].every((el) => getComputedStyle(el).clipPath === 'none'))
+  report(/Drei Bereiche/.test(await page.locator('h1').innerText()) && (await page.locator('.service__photo img').count()) === 3 && visible && unclipped, 'services page readable without JavaScript, nothing hidden')
   await context.close()
 }
 
@@ -267,6 +276,11 @@ for (const vp of viewports) {
 
   await page.goto(base + '/', { waitUntil: 'networkidle' })
   await page.evaluate(() => window.scrollTo(0, 2000))
+  await page.waitForTimeout(700)
+  report(await page.evaluate(() => document.querySelector('.site-header').classList.contains('is-hidden') && document.querySelector('.site-header').getBoundingClientRect().bottom <= 0), 'header moves out of the way while scrolling down')
+  await page.evaluate(() => window.scrollTo(0, 1900))
+  await page.waitForTimeout(700)
+  report(await page.evaluate(() => !document.querySelector('.site-header').classList.contains('is-hidden') && document.querySelector('.site-header__bar').getBoundingClientRect().top >= 0), 'header returns when scrolling up')
   await page.locator('.site-nav').getByRole('link', { name: 'Über uns' }).click()
   await page.waitForURL('**/ueber-uns')
   await page.waitForTimeout(200)
@@ -294,141 +308,179 @@ for (const vp of viewports) {
   await page.locator('.site-nav').getByRole('link', { name: 'Kontakt' }).click()
   await page.waitForURL('**/kontakt')
   const midway = await navLayers('Kontakt')
-  await page.waitForTimeout(400)
+  await page.waitForTimeout(700)
   layers = await navLayers('Kontakt')
   report(midway.active.offset > 2 && layers.active.offset < 2, `nav: green pill glides to the new page (${midway.active.offset.toFixed(0)}px away just after the click, then ${layers.active.offset.toFixed(1)}px)`)
   await page.locator('.site-nav').getByRole('link', { name: 'Schulungen' }).hover()
-  await page.waitForTimeout(400)
+  await page.waitForTimeout(700)
   layers = await navLayers('Schulungen')
   report(layers.hover.opacity === 1 && layers.hover.offset < 2, `nav: highlight follows the pointer (off by ${layers.hover.offset.toFixed(1)}px)`)
   await page.mouse.move(700, 600)
   await page.waitForTimeout(300)
   report((await navLayers('Schulungen')).hover.opacity === 0, 'nav: highlight fades when the pointer leaves')
   await page.locator('.site-nav').getByRole('link', { name: 'Schulungen' }).focus()
-  report((await page.locator('.site-nav').getByRole('link').count()) === 4, 'nav: the visual copy adds no extra links')
+  report((await page.locator('.site-nav').getByRole('link').count()) === 5, 'nav: the visual copy adds no extra links')
   await page.goto(base + '/', { waitUntil: 'networkidle' })
   report((await navLayers('Kontakt')).active.opacity === 0, 'nav: no green pill on the home page')
   await context.close()
 }
 
-for (const width of [900, 1099, 1100]) {
+for (const width of [320, 460, 959, 960, 1179, 1180]) {
   const context = await browser.newContext({ viewport: { width, height: 800 }, locale: 'de-DE' })
   const page = await context.newPage()
   await page.goto(base + '/', { waitUntil: 'networkidle' })
   const fit = await page.evaluate(() => {
-    const inner = document.querySelector('.site-header__inner')
-    return inner.scrollWidth - inner.clientWidth
+    const bar = document.querySelector('.site-header__bar')
+    const parts = [...bar.children].filter((el) => getComputedStyle(el).display !== 'none').map((el) => el.getBoundingClientRect())
+    const overlap = parts.some((rect, index) => index > 0 && rect.left < parts[index - 1].right - 1)
+    return { overflow: bar.scrollWidth - bar.clientWidth, overlap }
   })
-  report(fit <= 0, `header content fits at ${width}px (overflow ${fit}px)`)
+  report(fit.overflow <= 0 && !fit.overlap, `header content fits at ${width}px (overflow ${fit.overflow}px, overlap ${fit.overlap})`)
   await context.close()
 }
 
-// Startseite (Desktop): Hero, Bildkarten, Bildmotiv, Ablauf, Schulungen, Abschluss
+// Startseite (Desktop): Hero, Kopfleiste, Laufband, Referenzkarte, Bildflächen, Kennzahlen, Ablauf, Referenzen, Abschluss
 {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE' })
   const page = await context.newPage()
   await page.goto(base + '/', { waitUntil: 'networkidle' })
-  await page.waitForTimeout(900)
+  await page.waitForTimeout(3200)
 
   const hero = await page.evaluate(() => {
-    const section = document.querySelector('.hero').getBoundingClientRect()
+    const frame = document.querySelector('.hero__frame').getBoundingClientRect()
     const img = document.querySelector('.hero__media img')
+    const h1 = document.querySelector('.hero h1')
     return {
-      height: section.height,
-      imgOk: img.complete && getComputedStyle(img).opacity === '1',
+      height: frame.height,
+      bottom: frame.bottom,
+      imgOk: img.complete && getComputedStyle(img).opacity === '1' && getComputedStyle(img).visibility === 'visible',
       imgSrc: img.currentSrc,
       eager: img.loading === 'eager' && img.getAttribute('fetchpriority') === 'high',
-      coversWidth: img.getBoundingClientRect().width >= window.innerWidth - 1,
-      h1Opacity: getComputedStyle(document.querySelector('.hero h1')).opacity,
-      h1Size: parseFloat(getComputedStyle(document.querySelector('.hero h1')).fontSize),
-      h1Color: getComputedStyle(document.querySelector('.hero h1')).color,
-      caption: document.querySelectorAll('.hero figcaption, .hero__caption').length,
+      covers: img.getBoundingClientRect().width >= frame.width - 1 && img.getBoundingClientRect().height >= frame.height - 1,
+      h1Text: h1.innerText.replace(/\s+/g, ' '),
+      h1Size: parseFloat(getComputedStyle(h1).fontSize),
+      h1Color: getComputedStyle(h1).color,
+      wordsSettled: [...h1.querySelectorAll('.split__w > span')].every((w) => getComputedStyle(w).translate === 'none'),
     }
   })
-  report(hero.height >= 560 && hero.height <= 680, `hero height at 1440×900: ${Math.round(hero.height)}px (560 to 680 expected)`)
-  report(hero.coversWidth && hero.imgOk, 'hero photograph spans the full width and is never hidden')
+  report(hero.height >= 620 && hero.bottom <= 900, `hero frame fills the first screen at 1440×900: ${Math.round(hero.height)}px`)
+  report(hero.covers && hero.imgOk, 'hero photograph fills its frame and is never hidden')
   report(hero.eager && /hero-\d+\.avif/.test(hero.imgSrc), `hero photo loads eagerly with high priority (${hero.imgSrc.split('/').pop()})`)
-  report(hero.h1Opacity === '1' && hero.h1Color === 'rgb(255, 255, 255)', 'white hero headline visible after the entrance sequence')
-  report(hero.h1Size >= 56 && hero.h1Size <= 72, `hero headline size on desktop: ${hero.h1Size}px (56 to 72 expected)`)
-  report(hero.caption === 0, 'hero has no caption tab')
-  const heroContrast = await contrastBehindWhiteText(page, ['.hero h1', '.hero__lead'], '.hero__content')
-  report(heroContrast >= 4.5, `hero text contrast against the darkened photo: ${heroContrast.toFixed(1)}:1 (worst 8×8 block, at least 4.5)`)
+  report(hero.h1Text === 'Energie, die weiterdenkt.' && hero.wordsSettled && hero.h1Color === 'rgb(255, 255, 255)', `white hero headline in place after the entrance: "${hero.h1Text}"`)
+  report(hero.h1Size >= 96 && hero.h1Size <= 160, `hero headline size on desktop: ${hero.h1Size}px (96 to 160 expected)`)
+  const headlineContrast = await contrastBehindWhiteText(page, ['.hero h1'], '.hero__inner')
+  report(headlineContrast >= 3, `hero headline contrast against the photo: ${headlineContrast.toFixed(1)}:1 (worst 8×8 block; large text needs 3)`)
+  const heroContrast = await contrastBehindWhiteText(page, ['.hero__lead', '.hero__actions .arrow-link'], '.hero__inner')
+  report(heroContrast >= 4.5, `hero text contrast against the photo: ${heroContrast.toFixed(1)}:1 (worst 8×8 block, at least 4.5)`)
   report((await page.getByRole('link', { name: 'Leistungen entdecken' }).getAttribute('href')) === '/leistungen', 'hero secondary link leads to the services page')
-  const headingTop = await page.evaluate(() => document.getElementById('services-title').getBoundingClientRect().top)
-  report(headingTop < 860, `next section heading starts within the first screen (${Math.round(headingTop)}px)`)
 
-  const headerHeight = () => page.evaluate(() => document.querySelector('.site-header').getBoundingClientRect().height)
-  const heightAtTop = await headerHeight()
-  report(await page.evaluate(() => getComputedStyle(document.querySelector('.site-header')).backgroundColor === 'rgb(255, 255, 255)'), 'header is white')
-  const ctaColors = await page.evaluate(() => {
-    const s = getComputedStyle(document.querySelector('.site-header__cta'))
-    return { bg: s.backgroundColor, color: s.color }
+  // Kopfleiste: schwebt, Schattenzustand beim Scrollen
+  const bar = await page.evaluate(() => {
+    const el = document.querySelector('.site-header__bar')
+    const rect = el.getBoundingClientRect()
+    const cta = getComputedStyle(document.querySelector('.site-header__cta'))
+    return { top: rect.top, height: rect.height, position: getComputedStyle(el.parentElement).position, ctaBg: cta.backgroundColor, ctaColor: cta.color }
   })
-  report(ctaColors.bg === 'rgb(43, 122, 75)' && ctaColors.color === 'rgb(255, 255, 255)', `header consultation button is green with white text (${ctaColors.bg})`)
-  await page.evaluate(() => window.scrollTo(0, 400))
-  await page.waitForTimeout(150)
+  report(bar.position === 'fixed' && bar.top > 0 && bar.height >= 56, `header floats above the page (${Math.round(bar.top)}px from the top, ${bar.height}px tall)`)
+  report(bar.ctaBg === 'rgb(23, 62, 43)' && bar.ctaColor === 'rgb(255, 255, 255)', `header consultation button is forest green with white text (${bar.ctaBg})`)
+  await page.evaluate(() => window.scrollTo(0, 300))
+  await page.waitForTimeout(250)
   report(await page.evaluate(() => document.querySelector('.site-header').classList.contains('is-scrolled')), 'header shows its scrolled state')
-  report((await headerHeight()) === heightAtTop, `header height unchanged when scrolled (${heightAtTop}px)`)
+  report((await page.evaluate(() => document.querySelector('.site-header__bar').getBoundingClientRect().height)) === bar.height, `header height unchanged when scrolled (${bar.height}px)`)
+  report(await page.evaluate(() => Number(getComputedStyle(document.documentElement).getPropertyValue('--scroll')) > 0), 'scroll progress follows the page position')
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.waitForTimeout(150)
+  await page.waitForTimeout(250)
 
-  // Keine erklärenden Bausteine mehr auf der Startseite
-  const removed = await page.evaluate(() => ({
-    tabs: document.querySelectorAll('[role="tab"]').length,
-    flow: document.querySelectorAll('.flow-section').length,
-    selector: document.querySelectorAll('#vorhaben').length,
-    faq: document.querySelectorAll('.faq').length,
-    disclosures: document.querySelectorAll('.disclosure').length,
-    lists: document.querySelectorAll('main .check-list, main .dash-list, main ol').length,
-  }))
-  report(Object.values(removed).every((n) => n === 0), `homepage without tabs, diagram, selector, FAQ and disclosures (${JSON.stringify(removed)})`)
+  // Wechselnde Referenzkarte im Hero
+  const spotlight = page.locator('.spotlight')
+  const firstHref = await spotlight.locator('.spotlight__card').getAttribute('href')
+  report((await spotlight.locator('.spotlight__segment').count()) === 4 && /^\/referenzen#projekt-\d+$/.test(firstHref), `hero card shows a reference and four segments (${firstHref})`)
+  await spotlight.getByRole('button', { name: 'Projektwechsel anhalten' }).click()
+  report((await spotlight.getAttribute('data-playing')) === null && (await spotlight.getByRole('button', { name: 'Projektwechsel fortsetzen' }).count()) === 1, 'hero card rotation can be paused')
+  await spotlight.locator('.spotlight__segment').nth(2).click()
+  await page.waitForTimeout(200)
+  report((await spotlight.locator('.spotlight__card').getAttribute('href')) === '/referenzen#projekt-18', 'segments select a reference directly')
+  await page.waitForTimeout(6500)
+  report((await spotlight.locator('.spotlight__card').getAttribute('href')) === '/referenzen#projekt-18', 'paused hero card stays on the chosen reference')
 
-  // Drei Bildkarten
-  const cards = page.locator('.card')
-  report((await cards.count()) === 3, 'three service cards visible at once')
-  const cardFacts = await page.evaluate(() =>
-    [...document.querySelectorAll('.card')].map((card) => {
-      const media = card.querySelector('.card__media').getBoundingClientRect()
-      const total = card.getBoundingClientRect()
-      return {
-        share: media.height / total.height,
-        href: card.querySelector('.card__link').getAttribute('href'),
-        src: card.querySelector('img').currentSrc.split('/').pop(),
-        bullets: card.querySelectorAll('li').length,
-      }
-    }),
+  // Laufband
+  const marquee = page.locator('.marquee--words')
+  report((await marquee.locator('.marquee__rows').getAttribute('aria-hidden')) === 'true' && (await marquee.locator('a').count()) === 0, 'keyword marquee is decorative: hidden from assistive technology, no links')
+  await marquee.getByRole('button', { name: /Laufband .* anhalten/ }).click()
+  await page.mouse.move(700, 600)
+  report(await page.evaluate(() => getComputedStyle(document.querySelector('.marquee--words .marquee__track')).animationPlayState === 'paused'), 'marquee can be paused with its switch')
+
+  // Leitsatz
+  await page.locator('.statement__text').scrollIntoViewIfNeeded()
+  await page.evaluate(() => window.scrollBy(0, 500))
+  await page.waitForTimeout(400)
+  report(await page.evaluate(() => Number(getComputedStyle(document.querySelector('.statement__text')).getPropertyValue('--p')) > 0.9), 'statement text is fully highlighted once scrolled past')
+
+  // Drei Bildflächen
+  const panels = page.locator('.panel')
+  report((await panels.count()) === 3 && (await page.locator('.panel.is-active').count()) === 1, 'three service panels, one open')
+  const panelFacts = await page.evaluate(() =>
+    [...document.querySelectorAll('.panel')].map((panel) => ({
+      width: panel.getBoundingClientRect().width,
+      href: panel.querySelector('.panel__link').getAttribute('href'),
+      src: panel.querySelector('img').currentSrc.split('/').pop(),
+      links: panel.querySelectorAll('a, button').length,
+    })),
   )
-  report(cardFacts.every((c) => c.share >= 0.55 && c.share <= 0.75), `card photos take roughly two thirds of each card (${cardFacts.map((c) => Math.round(c.share * 100) + '%').join(', ')})`)
-  report(cardFacts.map((c) => c.href).join(' ') === '/leistungen#photovoltaik /leistungen#betrieb-und-pflege /leistungen#gebaeudetechnik', 'cards link to the existing service anchors')
-  report(new Set(cardFacts.map((c) => c.src.replace(/-\d+\.\w+$/, ''))).size === 3 && cardFacts.every((c) => c.bullets === 0), 'cards use three distinct photos and no bullet lists')
-  await cards.nth(1).hover()
-  await page.waitForTimeout(700)
-  report(await page.evaluate(() => getComputedStyle(document.querySelectorAll('.card img')[1]).transform !== 'none'), 'card photo zooms slightly on hover')
-  await page.getByRole('link', { name: 'Betrieb & Pflege' }).focus()
-  report(await page.evaluate(() => getComputedStyle(document.querySelectorAll('.card')[1]).outlineStyle !== 'none'), 'focused card shows a focus ring around the whole card')
-  // Die ganze Karte ist Link: Klick mitten ins Foto (der gestreckte Link liegt darüber).
-  const mediaBox = await cards.nth(2).locator('.card__media').boundingBox()
-  await page.mouse.click(mediaBox.x + mediaBox.width / 2, mediaBox.y + mediaBox.height / 2)
+  report(panelFacts.map((p) => p.href).join(' ') === '/leistungen#photovoltaik /leistungen#betrieb-und-pflege /leistungen#gebaeudetechnik', 'panels link to the existing service anchors')
+  report(new Set(panelFacts.map((p) => p.src.replace(/-\d+\.\w+$/, ''))).size === 3 && panelFacts.every((p) => p.links === 1), 'panels use three distinct photos and exactly one link each')
+  report(panelFacts[0].width > panelFacts[1].width * 2, `open panel is clearly wider (${Math.round(panelFacts[0].width)}px vs ${Math.round(panelFacts[1].width)}px)`)
+  await panels.nth(1).scrollIntoViewIfNeeded()
+  await panels.nth(1).hover()
+  await page.waitForTimeout(1100)
+  report(await page.evaluate(() => { const p = [...document.querySelectorAll('.panel')]; return p[1].classList.contains('is-active') && p[1].getBoundingClientRect().width > p[0].getBoundingClientRect().width * 2 }), 'hovering a panel opens it')
+  // Mit der Tastatur weiter zur dritten Fläche (nur so gilt der Fokus als sichtbar).
+  await page.getByRole('link', { name: 'Betrieb & Pflege', exact: true }).focus()
+  await page.keyboard.press('Tab')
+  await page.waitForTimeout(1100)
+  report(await page.evaluate(() => { const p = document.querySelectorAll('.panel')[2]; return p.classList.contains('is-active') && getComputedStyle(p).outlineStyle !== 'none' }), 'keyboard focus opens a panel and rings the whole panel')
+  const mediaBox = await panels.nth(2).boundingBox()
+  await page.mouse.click(mediaBox.x + mediaBox.width / 2, mediaBox.y + mediaBox.height / 3)
   await page.waitForURL('**/leistungen#gebaeudetechnik')
   await page.waitForTimeout(400)
-  report(page.url().endsWith('/leistungen#gebaeudetechnik'), 'clicking a card photo opens the service section')
+  report(page.url().endsWith('/leistungen#gebaeudetechnik'), 'clicking into a panel photo opens the service section')
   await page.goBack()
   await page.waitForURL(base + '/')
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(400)
 
-  // Bildmotiv, Ablauf, Schulungen, Abschluss
-  report((await page.getByRole('link', { name: 'Photovoltaik entdecken' }).getAttribute('href')) === '/leistungen#photovoltaik', 'feature panel links to the photovoltaics section')
-  report(await page.evaluate(() => { const m = document.querySelector('.feature__media').getBoundingClientRect(); const s = document.querySelector('.feature__strip').getBoundingClientRect(); return s.top >= m.bottom - 1 && s.left >= m.left }), 'feature copy sits in a strip directly under the panorama, nothing overlaps the photo')
-  report((await page.locator('.work__photo img').count()) === 2 && (await page.locator('.labels li').allInnerTexts()).join(' ') === 'Beraten. Planen. Umsetzen.', 'process section shows two photos and the three labels')
-  report((await page.getByRole('link', { name: 'Mehr über uns' }).getAttribute('href')) === '/ueber-uns', 'process section links to the about page')
+  // Kennzahlen
+  await page.locator('.stats__grid').scrollIntoViewIfNeeded()
+  await page.waitForTimeout(2600)
+  const stats = await page.locator('.stat__value .count > [aria-hidden]').allInnerTexts()
+  report(stats.join(' ') === '15+ 400+ 51 3', `figures count up to their values (${stats.join(' ')})`)
+  report(/Portfolio von Altay Rustamov/.test(await page.locator('.stats__foot').innerText()), 'figures name their source')
+
+  // Ablauf
+  report((await page.locator('.process__step').count()) === 3 && (await page.locator('.process__shot').count()) === 3, 'process shows three steps with one photo each')
+  await page.locator('.process__step').nth(2).scrollIntoViewIfNeeded()
+  await page.evaluate(() => { const r = document.querySelectorAll('.process__step')[2].getBoundingClientRect(); window.scrollBy(0, r.top + r.height / 2 - window.innerHeight / 2) })
+  await page.waitForTimeout(900)
+  report((await page.locator('.process__badge').innerText()) === '03 / 03' && (await page.locator('.process__shot.is-active img').getAttribute('src')).includes('prozess-3'), 'sticky process photo follows the step in view')
+
+  // Referenzstrecke
+  const cards = page.locator('.ref-card')
+  report((await cards.count()) === 4 && (await cards.first().locator('a').getAttribute('href')) === '/referenzen#projekt-4', 'reference strip shows the four selected projects')
+  await page.locator('.refs__track').scrollIntoViewIfNeeded()
+  report(await page.getByRole('button', { name: 'Vorherige Referenz' }).isDisabled(), 'previous button disabled at the start of the strip')
+  await page.getByRole('button', { name: 'Nächste Referenz' }).click()
+  await page.waitForTimeout(900)
+  report(await page.evaluate(() => document.querySelector('.refs__track').scrollLeft > 300), 'next button moves the reference strip')
+  report(!(await page.getByRole('button', { name: 'Vorherige Referenz' }).isDisabled()), 'previous button enabled after moving')
+
+  // Schulungen und Abschluss
   report((await page.getByRole('link', { name: 'Schulungen entdecken' }).getAttribute('href')) === '/schulungen', 'training teaser links to the training page')
-  const finish = page.locator('.cta--photo')
+  const finish = page.locator('.cta__frame--photo')
   report((await finish.count()) === 1 && (await finish.getByRole('link', { name: 'Beratung anfragen' }).getAttribute('href')) === '/kontakt', 'photographic closing section with consultation link')
   await finish.scrollIntoViewIfNeeded()
   await page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-in')))
-  await page.waitForTimeout(600)
-  const finishContrast = await contrastBehindWhiteText(page, ['.cta--photo h2'], '.cta--photo .cta__grid')
-  report(finishContrast >= 4.5, `closing headline contrast against the overlaid photo: ${finishContrast.toFixed(1)}:1`)
+  await page.waitForTimeout(1400)
+  const finishContrast = await contrastBehindWhiteText(page, ['.cta__frame--photo h2', '.cta__foot p'], '.cta__inner')
+  report(finishContrast >= 4.5, `closing text contrast against the overlaid photo: ${finishContrast.toFixed(1)}:1`)
   await page.screenshot({ path: path.join(outDir, 'desktop-home-abschluss.png') })
   await context.close()
 }
@@ -438,8 +490,9 @@ for (const width of [900, 1099, 1100]) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE' })
   const page = await context.newPage()
   await page.goto(base + '/leistungen', { waitUntil: 'networkidle' })
-  report((await page.locator('.band img').count()) === 0 && (await page.locator('.service__band img').count()) === 3, 'services page opens with the photovoltaics photo band; one wide photo per service group')
-  report(await page.evaluate(() => [...document.querySelectorAll('.service__band img')].every((img) => Number(img.getAttribute('width')) / Number(img.getAttribute('height')) > 2.2)), 'service photos are wide crops (21:9 or 5:2)')
+  report((await page.locator('.page-hero__media img').count()) === 1 && (await page.locator('.service__photo img').count()) === 3, 'services page opens with a photo band; one photo per service group')
+  report((await page.locator('.jump-link').count()) === 3 && (await page.locator('.jump-link').nth(2).getAttribute('href')) === '/leistungen#gebaeudetechnik', 'jump links lead to the three service groups')
+  report(await page.evaluate(() => getComputedStyle(document.querySelector('.service__media')).position === 'sticky'), 'service photo stays in view beside the text')
   const consult = page.getByRole('link', { name: 'Dazu beraten lassen' })
   report((await consult.count()) === 3 && (await consult.nth(1).getAttribute('href')) === '/kontakt?interesse=betrieb-und-pflege', 'each service group keeps its interest-prefilled consultation link')
   const flowHeading = page.locator('#flow-title')
@@ -523,13 +576,21 @@ for (const width of [900, 1099, 1100]) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE' })
   const page = await context.newPage()
   await page.goto(base + '/ueber-uns', { waitUntil: 'networkidle' })
-  report((await page.locator('.band img').count()) === 1, 'about page shows a photo band')
+  report((await page.locator('.page-hero__media img').count()) === 1, 'about page shows a photo band')
+  report((await page.locator('.ledger li').count()) === 6 && (await page.locator('.location').count()) === 3 && (await page.locator('.mosaic__item').count()) === 3, 'about page shows six collaborations, three locations and three fair photos')
+  await page.locator('.mosaic__item').first().scrollIntoViewIfNeeded()
+  await page.locator('.mosaic__item').first().click()
+  await page.locator('dialog.lightbox').waitFor({ state: 'visible' })
+  report((await page.locator('dialog.lightbox h2').innerText()) === 'Im fachlichen Austausch', 'fair photos open in the gallery')
+  await page.keyboard.press('Escape')
+  await page.locator('dialog.lightbox').waitFor({ state: 'detached' })
   await page.locator('.steps').scrollIntoViewIfNeeded()
   await page.waitForTimeout(1300)
   report(await page.evaluate(() => getComputedStyle(document.querySelector('.step'), '::before').transform === 'none'), 'process connecting line drawn after entering view')
   await page.goto(base + '/schulungen', { waitUntil: 'networkidle' })
-  report((await page.locator('.band img').count()) === 1, 'training page shows a photo band')
-  const interest = page.getByRole('link', { name: 'Schulung anfragen' })
+  report((await page.locator('.page-hero__media img').count()) === 1, 'training page shows a photo band')
+  report((await page.locator('.activity').count()) === 5, 'training page lists the five documented courses and seminars')
+  const interest = page.locator('.topic').getByRole('link', { name: 'Schulung anfragen' })
   report((await interest.count()) === 2 && (await interest.first().getAttribute('href')) === '/kontakt?interesse=schulung-photovoltaik', 'training topics keep their interest links')
   await context.close()
 }
@@ -539,7 +600,7 @@ for (const width of [900, 1099, 1100]) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'de-DE' })
   const page = await context.newPage()
   await page.goto(base + '/', { waitUntil: 'networkidle' })
-  await page.waitForTimeout(900)
+  await page.waitForTimeout(3200)
   const mobileHero = await page.evaluate(() => {
     const hero = document.querySelector('.hero').getBoundingClientRect()
     const h1 = document.querySelector('.hero h1')
@@ -547,16 +608,19 @@ for (const width of [900, 1099, 1100]) {
     return { height: hero.height, h1Size: parseFloat(getComputedStyle(h1).fontSize), h1Inside: h1.getBoundingClientRect().bottom <= hero.bottom, src: img.currentSrc.split('/').pop() }
   })
   report(mobileHero.height >= 520 && mobileHero.h1Inside, `mobile hero sized by its content (${Math.round(mobileHero.height)}px) with the headline inside`)
-  report(mobileHero.h1Size >= 36 && mobileHero.h1Size <= 44, `mobile hero headline size: ${mobileHero.h1Size}px (36 to 44 expected)`)
+  report(mobileHero.h1Size >= 44 && mobileHero.h1Size <= 60, `mobile hero headline size: ${mobileHero.h1Size}px (44 to 60 expected)`)
   report(/^hero-hoch-/.test(mobileHero.src), `mobile hero uses the portrait crop (${mobileHero.src})`)
-  const mobileContrast = await contrastBehindWhiteText(page, ['.hero h1', '.hero__lead'], '.hero__content')
+  const mobileHeadline = await contrastBehindWhiteText(page, ['.hero h1'], '.hero__inner')
+  report(mobileHeadline >= 3, `mobile hero headline contrast: ${mobileHeadline.toFixed(1)}:1 (large text needs 3)`)
+  const mobileContrast = await contrastBehindWhiteText(page, ['.hero__lead'], '.hero__inner')
   report(mobileContrast >= 4.5, `mobile hero text contrast: ${mobileContrast.toFixed(1)}:1`)
   const stacked = await page.evaluate(() => {
-    const rects = [...document.querySelectorAll('.card')].map((c) => c.getBoundingClientRect())
+    const rects = [...document.querySelectorAll('.panel')].map((c) => c.getBoundingClientRect())
     return rects.every((r, i) => r.width > window.innerWidth * 0.8 && (i === 0 || r.top >= rects[i - 1].bottom))
   })
-  report(stacked, 'service cards stack vertically on mobile')
-  report(await page.evaluate(() => { const l = document.querySelector('.work__photo--large').getBoundingClientRect(); const s = document.querySelector('.work__photo--small').getBoundingClientRect(); return s.top < l.bottom && s.bottom > l.bottom }), 'small process photo overlaps the large one on mobile')
+  report(stacked, 'service panels stack vertically on mobile')
+  report(await page.evaluate(() => [...document.querySelectorAll('.panel__detail')].every((d) => getComputedStyle(d).opacity === '1' && d.getBoundingClientRect().height > 40)), 'stacked panels show their details without interaction')
+  report(await page.evaluate(() => getComputedStyle(document.querySelector('.process__media')).display === 'none' && [...document.querySelectorAll('.process__inline')].every((el) => getComputedStyle(el).display !== 'none')), 'process photos sit with their steps on mobile')
   await page.goto(base + '/kontakt', { waitUntil: 'networkidle' })
   const formTop = await page.evaluate(() => document.querySelector('form').getBoundingClientRect().top + window.scrollY)
   report(formTop < 700, `contact form starts within ${Math.round(formTop)}px on mobile`)
@@ -573,10 +637,15 @@ for (const width of [900, 1099, 1100]) {
   await page.goto(base + '/', { waitUntil: 'networkidle' })
   const hidden = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')].filter((el) => getComputedStyle(el).opacity !== '1').length)
   report(hidden === 0, `reduced motion: all reveal elements visible (${hidden} hidden)`)
-  report((await page.evaluate(() => getComputedStyle(document.querySelector('.hero h1')).animationName)) === 'none', 'reduced motion: hero entrance disabled')
-  await page.locator('.card').first().hover()
+  report(await page.evaluate(() => ['.hero .split__w > span', '.hero__media img', '.hero__foot'].every((s) => getComputedStyle(document.querySelector(s)).animationName === 'none')), 'reduced motion: hero entrance disabled')
+  report(await page.evaluate(() => [...document.querySelectorAll('.marquee__track')].every((t) => getComputedStyle(t).animationName === 'none')), 'reduced motion: marquee stands still')
+  report((await page.locator('.spotlight').getAttribute('data-playing')) === null, 'reduced motion: hero card does not rotate')
+  report(await page.evaluate(() => [...document.querySelectorAll('[data-parallax] img')].every((img) => getComputedStyle(img).translate === 'none')), 'reduced motion: photos do not move with the scroll position')
+  await page.locator('.ref-card').first().scrollIntoViewIfNeeded()
+  await page.locator('.ref-card').first().hover()
   await page.waitForTimeout(400)
-  report(await page.evaluate(() => getComputedStyle(document.querySelector('.card img')).transform === 'none'), 'reduced motion: no photo zoom on hover')
+  report(await page.evaluate(() => getComputedStyle(document.querySelector('.ref-card img')).transform === 'none'), 'reduced motion: no photo zoom on hover')
+  report((await page.locator('.stat__value .count > [aria-hidden]').first().innerText()) === '15+', 'reduced motion: figures show their value without counting')
   await page.goto(base + '/leistungen', { waitUntil: 'networkidle' })
   await page.getByRole('button', { name: 'Gebäude', exact: true }).click()
   await page.waitForTimeout(200)

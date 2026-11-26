@@ -19,6 +19,9 @@ export function useReveal(routeKey: string) {
       return
     }
 
+    // Beim allerersten Laden ist das Vorgerenderte schon zu sehen: Was dann im Bild liegt,
+    // gilt ohne Bewegung als eingeblendet (`is-instant`), damit nichts aufblitzt.
+    let initial = !document.documentElement.classList.contains('js')
     let observer: IntersectionObserver
     try {
       observer = new IntersectionObserver(
@@ -26,12 +29,14 @@ export function useReveal(routeKey: string) {
           for (const entry of entries) {
             if (entry.isIntersecting) {
               entry.target.classList.add('is-in')
+              if (initial) entry.target.classList.add('is-instant')
               observer.unobserve(entry.target)
             }
           }
+          initial = false
           document.documentElement.classList.add('js')
         },
-        { rootMargin: '0px 0px -6% 0px', threshold: 0 },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0 },
       )
       elements.forEach((el) => observer.observe(el))
     } catch {

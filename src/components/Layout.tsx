@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigationType } from 'react-router-dom'
 import { SiteHeader } from './SiteHeader'
 import { SiteFooter } from './SiteFooter'
 import { useReveal } from '../lib/useReveal'
+import { useScrollFx } from '../lib/useScrollFx'
 
 /**
  * Fokussiert ein Element, das selbst nicht fokussierbar ist (main, Abschnitte).
@@ -46,6 +47,8 @@ export function Layout() {
     const firstRun = previousPath.current === null
     const pathChanged = previousPath.current !== location.pathname
     previousPath.current = location.pathname
+    // Ab dem ersten Seitenwechsel blendet neuer Inhalt kurz ein (siehe .page in base.css).
+    if (!firstRun && pathChanged) document.documentElement.setAttribute('data-nav', '')
 
     if (navigationType === 'POP' && !firstRun) {
       window.scrollTo({ top: positions.current.get(location.key) ?? 0, left: 0, behavior: 'instant' })
@@ -68,15 +71,19 @@ export function Layout() {
   }, [location.pathname, location.hash, location.key, navigationType])
 
   useReveal(location.pathname)
+  useScrollFx(location.pathname)
 
   return (
     <>
       <a className="skip-link" href="#inhalt">
         Zum Inhalt springen
       </a>
+      <div className="scroll-progress" aria-hidden="true" />
       <SiteHeader />
       <main id="inhalt" ref={mainRef}>
-        <Outlet />
+        <div className="page" key={location.pathname}>
+          <Outlet />
+        </div>
       </main>
       <SiteFooter />
     </>
